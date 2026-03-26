@@ -1,0 +1,339 @@
+<main class="page-shell">
+  <div class="ambient ambient--top-left" aria-hidden="true"></div>
+  <div class="ambient ambient--top-right" aria-hidden="true"></div>
+  <div class="ambient ambient--bottom-right" aria-hidden="true"></div>
+  <div class="decor-ring" aria-hidden="true"></div>
+  <div class="decor-dot" aria-hidden="true"></div>
+
+  @if (showPrizeModal()) {
+    @if (selectedPromo(); as promo) {
+      <div class="prize-modal-backdrop" aria-hidden="true"></div>
+      <section class="prize-modal" aria-labelledby="prize-modal-title" aria-modal="true" role="dialog">
+        <div class="prize-modal__glow" aria-hidden="true"></div>
+        <div class="prize-modal__confetti" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <div class="prize-modal__spark prize-modal__spark--left" aria-hidden="true">✦</div>
+        <div class="prize-modal__spark prize-modal__spark--right" aria-hidden="true">✦</div>
+        <div class="prize-modal__seal" aria-hidden="true">Premio desbloqueado</div>
+        <p class="prize-modal__eyebrow">Tu premio ya salio</p>
+        <h2 id="prize-modal-title">Ya ganaste!!</h2>
+        <div class="prize-modal__code-row">
+          <strong>{{ promo.code }}</strong>
+          <button
+            class="prize-modal__copy"
+            type="button"
+            (click)="copyPromoCode(promo.code)"
+            aria-label="Copiar codigo"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H10V7h9v14z"
+              />
+            </svg>
+          </button>
+        </div>
+        @if (codeCopied()) {
+          <p class="prize-modal__copied">Codigo copiado</p>
+        }
+        <p class="prize-modal__benefit">{{ promo.benefit }}</p>
+        <p class="prize-modal__hint">{{ promo.hint }}</p>
+        <button class="primary-button prize-modal__button" type="button" (click)="claimPrize()">
+          RECLAMAR
+        </button>
+      </section>
+    }
+  }
+
+  @if (showRegister() && !showPrizeModal()) {
+    @if (selectedPromo(); as promo) {
+      <div class="prize-modal-backdrop" aria-hidden="true"></div>
+      <section class="register-modal" aria-labelledby="register-modal-title" aria-modal="true" role="dialog">
+        <form
+          class="register-card register-card--modal"
+          #registerForm="ngForm"
+          (ngSubmit)="submitRegistration(registerForm)"
+        >
+          <div class="register-copy">
+            <p class="promo-summary__eyebrow">Activa tu premio</p>
+            <h3 id="register-modal-title">Registrate y canjealo ahora</h3>
+            <p>
+              Dejanos tus datos para apartar tu codigo y coordinar tu primera recoleccion a
+              domicilio.
+            </p>
+            <div class="register-prize-chip">
+              <strong>{{ promo.code }}</strong>
+              <span>{{ promo.benefit }}</span>
+            </div>
+          </div>
+
+          <label>
+            <span>Nombre completo</span>
+            <input
+              type="text"
+              name="fullName"
+              [(ngModel)]="registration.fullName"
+              required
+              minlength="3"
+            />
+            @if (registerForm.submitted && registerForm.controls['fullName'].invalid) {
+              <small>Ingresa un nombre valido.</small>
+            }
+          </label>
+
+          <label>
+            <span>Correo electronico</span>
+            <input
+              type="email"
+              name="email"
+              [(ngModel)]="registration.email"
+              required
+              email
+            />
+            @if (registerForm.submitted && registerForm.controls['email'].invalid) {
+              <small>Necesitamos un correo correcto.</small>
+            }
+          </label>
+
+          <label>
+            <span>Telefono</span>
+            <input
+              type="tel"
+              name="phone"
+              [(ngModel)]="registration.phone"
+              required
+              pattern="[0-9 +()-]{8,}"
+            />
+            @if (registerForm.submitted && registerForm.controls['phone'].invalid) {
+              <small>Captura un telefono valido.</small>
+            }
+          </label>
+
+          <label>
+            <span>Contraseña</span>
+            <div class="input-with-action">
+              <input
+                [type]="showPassword() ? 'text' : 'password'"
+                name="password"
+                [(ngModel)]="registration.password"
+                required
+                minlength="6"
+              />
+              <button
+                class="input-with-action__toggle"
+                type="button"
+                (click)="togglePasswordVisibility()"
+                [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              >
+                @if (showPassword()) {
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      d="M3.27 2 2 3.27l3.02 3.02C3.2 7.76 1.78 9.71 1 12c1.73 5.09 6.36 8 11 8 2.09 0 4.18-.59 6.02-1.71L20.73 21 22 19.73 3.27 2zM12 17c-2.76 0-5-2.24-5-5 0-.88.24-1.71.64-2.43l1.55 1.55A3 3 0 0 0 12.88 14l1.92 1.92c-.83.68-1.88 1.08-2.8 1.08zm.99-7.17-3.82-3.82c.88-.46 1.87-.76 2.83-.76 2.76 0 5 2.24 5 5 0 .97-.29 1.88-.77 2.66l-1.7-1.7c.3-.89.08-1.91-.54-2.53A2.98 2.98 0 0 0 12.99 9.83zM12 4c4.64 0 9.27 2.91 11 8-.51 1.5-1.3 2.81-2.27 3.9l-1.46-1.46c.55-.72 1.03-1.54 1.4-2.44-1.26-3.32-4.41-6-8.67-6-.95 0-1.89.15-2.77.43l-1.6-1.6C9.01 4.29 10.49 4 12 4z"
+                    />
+                  </svg>
+                } @else {
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      d="M12 5c4.64 0 8.63 2.91 10 7-1.37 4.09-5.36 7-10 7s-8.63-2.91-10-7c1.37-4.09 5.36-7 10-7zm0 2c-3.23 0-6.11 1.94-7.4 5 1.29 3.06 4.17 5 7.4 5s6.11-1.94 7.4-5c-1.29-3.06-4.17-5-7.4-5zm0 1.5A3.5 3.5 0 1 1 8.5 12 3.5 3.5 0 0 1 12 8.5zm0 2A1.5 1.5 0 1 0 13.5 12 1.5 1.5 0 0 0 12 10.5z"
+                    />
+                  </svg>
+                }
+              </button>
+            </div>
+            @if (registerForm.submitted && registerForm.controls['password'].invalid) {
+              <small>Usa una contraseña de al menos 6 caracteres.</small>
+            }
+          </label>
+
+          @if (registrationError()) {
+            <p class="register-card__error">{{ registrationError() }}</p>
+          }
+
+          <button class="secondary-button" type="submit" [disabled]="isSubmittingRegistration()">
+            <span class="secondary-button__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="presentation">
+                <path
+                  d="M12 12c2.76 0 5-2.24 5-5S14.76 2 12 2 7 4.24 7 7s2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v3h20v-3c0-3.33-6.67-5-10-5z"
+                />
+              </svg>
+            </span>
+            {{ isSubmittingRegistration() ? 'Registrando...' : 'Registrar' }}
+          </button>
+        </form>
+      </section>
+    }
+  }
+
+  @if (registrationCompleted()) {
+    <div class="prize-modal-backdrop" aria-hidden="true"></div>
+    <section class="success-modal" aria-labelledby="success-modal-title" aria-modal="true" role="dialog">
+      <article class="success-card success-card--modal">
+        <p class="promo-summary__eyebrow">Registro completado</p>
+        <h3 id="success-modal-title">¡BRAVO! ¡Tu código ya es tuyo! ⚡</h3>
+        <p>
+          El primer paso ya está dado. ¡Ahora solo confirma tu pedido y prepárate para la
+          magia! Recibe tu ropa limpia en la puerta de tu casa y disfruta del tiempo libre que
+          te mereces. ¡Dale clic y estrena frescura!
+        </p>
+        @if (registeredUser(); as user) {
+          <p class="success-card__user">
+            Cuenta creada para <strong>{{ user.fullName }}</strong> con el correo
+            <strong>{{ user.email }}</strong>.
+          </p>
+        }
+        <button class="secondary-button" type="button" (click)="goToLaundrApp()">
+          QUIERO USAR MI CUPON
+        </button>
+      </article>
+    </section>
+  }
+
+  <header class="hero-header">
+    <p class="eyebrow">Promociones para tu primer pedido</p>
+    <h1>
+      Gira la <span>Rueda de la Suerte</span>
+    </h1>
+    <p class="lead">
+      Gana un beneficio exclusivo para tu primer lavado a domicilio, registrate en minutos
+      y deja tus prendas en manos de YoTeLavo.
+    </p>
+  </header>
+
+  <section class="wheel-stage">
+    <div class="wheel-wrapper">
+      <div class="wheel-halo" aria-hidden="true"></div>
+
+      <div class="wheel-panel">
+        <div class="wheel-scene">
+          @if (celebrationActive()) {
+            <div class="celebration-burst" aria-hidden="true">
+              @for (piece of confettiPieces; track piece) {
+                <span class="confetti-piece"></span>
+              }
+            </div>
+            <div class="winner-flash">Ya ganaste!!</div>
+          }
+
+          <div class="wheel-ribbon">
+            <span>Gira y gana con</span>
+            <strong>YoTeLavo en tu puerta</strong>
+          </div>
+
+          <div class="wheel-pointer" aria-hidden="true"></div>
+
+          <div class="wheel-frame" [class.wheel-frame--celebrating]="celebrationActive()">
+            <div
+              class="wheel"
+              [class.wheel--spinning]="isSpinning()"
+              [style.transform]="'rotate(' + wheelRotation() + 'deg)'"
+              [style.background]="wheelBackground()"
+              aria-label="Ruleta de promociones"
+            >
+              @for (promo of promos(); track promo.code; let index = $index) {
+                <div
+                  class="wheel-label"
+                  [style.left.%]="labelPositions()[index].left"
+                  [style.top.%]="labelPositions()[index].top"
+                >
+                  {{ promo.label }}
+                </div>
+              }
+            </div>
+
+            @for (bolt of bolts; track bolt) {
+              <span
+                class="wheel-bolt"
+                [style.left.%]="boltPositions[bolt].left"
+                [style.top.%]="boltPositions[bolt].top"
+                aria-hidden="true"
+              ></span>
+            }
+
+            <div class="wheel-center" aria-hidden="true">
+              <span>Lav</span>
+              <strong>Pro</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-stack">
+      <button
+        class="primary-button"
+        type="button"
+        (click)="spinWheel()"
+        [disabled]="isSpinning() || isLoadingCoupons() || !promos().length"
+      >
+        <span class="primary-button__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" role="presentation">
+            <path
+              d="M12 2.5l1.95 5.55L19.5 10l-5.55 1.95L12 17.5l-1.95-5.55L4.5 10l5.55-1.95L12 2.5zm6.25 11.25l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9.9-2.6zm-12.5 0l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9.9-2.6z"
+            />
+          </svg>
+        </span>
+        {{ isLoadingCoupons() ? 'Cargando cupones...' : isSpinning() ? 'Girando...' : '¡Probar mi suerte!' }}
+      </button>
+
+      <div class="benefit-list">
+        @for (benefit of benefitHighlights; track benefit) {
+          <span>{{ benefit }}</span>
+        }
+      </div>
+
+      <div class="trust-list">
+        <span>Todos ganan</span>
+        <span>Valido por tiempo limitado</span>
+        <span>Canje rapido</span>
+      </div>
+
+      @if (couponsError()) {
+        <p class="action-stack__notice">
+          No se pudieron cargar los cupones del servicio. Se muestran promociones de respaldo.
+        </p>
+      }
+    </div>
+  </section>
+
+  <section class="service-grid">
+    @for (card of serviceCards; track card.title) {
+      <article class="service-card">
+        <div class="service-card__icon" [class]="'service-card__icon service-card__icon--' + card.tone">
+          @switch (card.icon) {
+            @case ('spark') {
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M12 2.5l1.95 5.55L19.5 10l-5.55 1.95L12 17.5l-1.95-5.55L4.5 10l5.55-1.95L12 2.5zm6.25 11.25l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9.9-2.6zm-12.5 0l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9.9-2.6z"
+                />
+              </svg>
+            }
+            @case ('gift') {
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M20 7h-2.18A2.99 2.99 0 0 0 18 6c0-1.66-1.34-3-3-3-1.54 0-2.8 1.16-2.97 2.65h-.06C11.8 4.16 10.54 3 9 3 7.34 3 6 4.34 6 6c0 .35.06.69.18 1H4a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h1v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7h1a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1zm-5-2a1 1 0 1 1 0 2h-2V6a1 1 0 0 1 2-1zM8 6a1 1 0 0 1 2 0v1H9a1 1 0 0 1-1-1zm11 5h-6v8h4a1 1 0 0 0 1-1v-7zm-8 8v-8H5v7a1 1 0 0 0 1 1h5zM5 9h14V8H5v1z"
+                />
+              </svg>
+            }
+            @case ('truck') {
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M3 6a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v3h2.59a1 1 0 0 1 .71.29l2.41 2.42c.19.18.29.44.29.7V17a1 1 0 0 1-1 1h-1.18a3 3 0 0 1-5.64 0H9.82a3 3 0 0 1-5.64 0H4a1 1 0 0 1-1-1V6zm2 10a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm10 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm3-3v-1.09L16.17 11H14v2h4z"
+                />
+              </svg>
+            }
+          }
+        </div>
+        <h2>{{ card.title }}</h2>
+        <p>{{ card.text }}</p>
+      </article>
+    }
+  </section>
+
+</main>
