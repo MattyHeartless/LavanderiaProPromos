@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, computed, inject, isDevMode, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
+import { environment } from '../environments/environment';
 
 interface PromoReward {
   couponId: string;
@@ -61,11 +62,9 @@ interface RegisterFormModel {
 })
 export class AppComponent {
   private readonly http = inject(HttpClient);
-  private readonly couponsUrl = 'http://localhost:5009/api/catalogs/coupons';
-  private readonly promoRegistrationUrl = 'http://localhost:5116/api/auth/registrousuariopromo';
-  private readonly laundrAppUrl = isDevMode()
-    ? 'http://localhost:4200/login'
-    : 'https://laundr-app.ashywater-a0d6b972.westus2.azurecontainerapps.io/login';
+  private readonly couponsUrl = `${environment.catalogsApiUrl}/api/catalogs/coupons`;
+  private readonly promoRegistrationUrl = `${environment.authApiUrl}/api/auth/registrousuariopromo`;
+  private readonly laundrAppUrl = `${environment.laundrAppUrl}/login`;
 
   readonly fallbackPromos: PromoReward[] = [
     {
